@@ -76,8 +76,9 @@ class Q9InputMethodUI(QWidget):
         self.showing_relates = False        
         self.sc_output = False
 
-        # 添加隐藏状态变量
+        # 添加隐藏状态变量和窗口几何信息
         self.is_hidden = False
+        self.saved_geometry = None
 
         # Keyboard hook setup
         self.setup_keyboard_hook_variables(device_path)        
@@ -402,17 +403,19 @@ class Q9InputMethodUI(QWidget):
         pass
 
     def toggle_visibility(self):
-        """切换窗口的隐藏/显示状态"""
+        """切换窗口可见性并保存/恢复位置"""
         if self.is_hidden:
             self.show()
-            # 重新定位到右侧中央
-            self.position_window_right_center()
+            if self.saved_geometry:
+                self.setGeometry(self.saved_geometry)  # 恢复原始位置和大小
             self.is_hidden = False
-            print("输入法界面已显示")
+            print("窗口显示，位置已恢复")
         else:
+            self.saved_geometry = self.geometry()  # 保存当前位置和大小
             self.hide()
             self.is_hidden = True
-            print("输入法界面已隐藏")
+            print("窗口隐藏，位置已保存")
+
     def linux_event_loop(self):
         """Linux evdev 事件循环"""
         while self.running:
